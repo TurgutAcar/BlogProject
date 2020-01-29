@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+ xmlns:security="http://www.springframework.org/schema/security"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:tx="http://www.springframework.org/schema/tx"
+          xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                            http://www.springframework.org/schema/beans/spring-beans.xsd
+                            http://www.springframework.org/schema/context
+                            http://www.springframework.org/schema/context/spring-context-4.2.xsd
+                            http://www.springframework.org/schema/mvc 
+                            http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd
+                             http://www.springframework.org/schema/security 
+                            http://www.springframework.org/schema/security/spring-security-4.0.xsd
+                             http://www.springframework.org/schema/tx 
+                            http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">  
+                           	
+  <context:component-scan base-package="controller" />
+	<context:component-scan base-package="entity" />
+	<context:component-scan base-package="service" />
+	<context:component-scan base-package="dao" />
+	 <context:component-scan base-package="validator"/>                      
+	
+	
+    <mvc:annotation-driven></mvc:annotation-driven>  
+
+         <bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/jsp/"> </property>
+		<property name="suffix" value=".jsp"></property>
+		</bean>  
+		<mvc:resources mapping="/resources/**" location="/resources/theme1/"  
+	cache-period="31556926"/>
+	
+                        
+	
+                
+                  
+
+	
+	  <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+	<!-- enable the configuration of transactional behavior based on annotations -->
+	 <tx:annotation-driven transaction-manager="transactionManager" />
+	 
+	   <!--  This defines the entity manager factory with some custom properties -->
+  <bean id='entityManagerFactory' 
+      class='org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean'>
+    <property name="persistenceUnitName" value="myProjectBlog"/>
+    <property name='dataSource' ref='dataSource' />
+    <property name="jpaPropertyMap">
+        <map>
+          <entry key="eclipselink.weaving" value="false"/>
+        </map>
+    </property>
+  </bean>         
+	 
+	 
+                               <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+                 <property name="username" value="hbstudent"></property>
+        <property name="password" value="hbstudent"></property>
+        <property name="url"
+         value="jdbc:mysql://localhost:3306/mydbtest?useSSL=false&amp;serverTimezone=UTC"></property>
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
+                  
+       </bean>
+       
+         <bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+	    <property name="basename" value="/WEB-INF/localization/messages" />
+	    <property name="defaultEncoding" value="UTF-8" />
+ 	</bean>
+       
+    <security:http auto-config="true" use-expressions="true">
+
+        <security:csrf disabled="true"></security:csrf>
+        <security:intercept-url pattern="/index.html" access="permitAll" />
+        <security:intercept-url pattern="/about.jsp" access="permitAll" />
+         <security:intercept-url pattern="/contact.html" access="permitAll" />
+         <security:intercept-url pattern="/articleView.html" access="permitAll" />
+        <security:intercept-url pattern="/memberRegister.jsp" access="permitAll" />
+        <security:intercept-url pattern="/articleUp.html" access="hasAnyRole('ROLE_MANAGER', 'ROLE_USER')" />
+        <security:intercept-url pattern="/articleList.html" access="hasAnyRole('ROLE_MANAGER', 'ROLE_USER')" />
+        <security:intercept-url pattern="/articleAdd.html" access="hasAnyRole('ROLE_MANAGER', 'ROLE_USER')" />
+       
+         <security:form-login username-parameter="j_username" password-parameter="j_password" login-processing-url="/j_spring_security_check" login-page="/login.jsp"/>
+        <security:logout logout-url="/logout"
+    	logout-success-url="/index.html" />
+                </security:http>   
+                            
+     <security:authentication-manager>
+     
+     <security:authentication-provider>
+	<security:password-encoder hash="md5"/>
+
+
+
+     <security:jdbc-user-service data-source-ref="dataSource" />
+
+
+
+     </security:authentication-provider>
+     </security:authentication-manager>      
+              
+</beans>
